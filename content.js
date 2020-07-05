@@ -376,17 +376,105 @@ var dummyInput = "What is your next goal?";
  **/
 function newGoal(){
 	console.log("adding a new goal");
+	var goalRow = document.createElement("div");
+		goalRow.style.position="relative";
+
+
+	var checkbox = document.createElement("input");
+		checkbox.type = "checkbox";
+		//checkbox.id = tagKey + "Check"; //id is the tag key and Check
+		checkbox.style.display="inline-block";
+		//checkbox.style.position="absolute";
+		//checkbox.style.top="0";
+		checkbox.style.verticalAlign="top";
+		checkbox.style.margin="0!important";
+		checkbox.addEventListener('change', function() {
+		    if(this.checked) {
+/*
+		        // Checkbox is checked..
+		        //add to array of tags, later to be messaged to create a new Annotation.
+		        myTags[tagKey] = jsonAllTags[tagKey];//copying over the JSON object.
+		        console.log("myTags: " + JSON.stringify(myTags));
+
+		        var colorBox = document.createElement("div");
+		        	colorBox.style.display = "inline-block";
+					colorBox.style.width = "10px";
+					colorBox.style.height = "10px";
+					colorBox.style.marginRight = "10%";
+					colorBox.style.backgroundColor = jsonAllTags[tagKey].color;
+					colorBox.id = "colorBox" + tagKey;
+
+
+
+		        //add a color box radio option to the primaryTagOptions div
+		        document.getElementById("primaryTagOptions").append(colorBox);
+
+
+		        var numMyTags = Object.keys(myTags).length;//number of tags.
+		        if(numMyTags == 1){
+					primaryTagKey = tagKey;//if there's only one tag, then assign its id to primaryTag
+
+					var primaryBox = document.getElementById("colorBox" + primaryTagKey);
+					//draw an outline around it. 
+					primaryBox.style.border = "solid";
+					primaryBox.style.borderColor = "black";
+					primaryBox.style.borderWidth ="2px";
+					
+				}
+
+				//add event listener to the colorBox where if it is clicked, then we update the primaryTags.
+				colorBox.addEventListener("mouseover", function(){
+					this.style.cursor = "pointer";
+				});
+
+				colorBox.addEventListener("click", function(){
+					updateUIPrimaryTag(tagKey);
+					//editedAnnotJSON.primaryTagKey = tagKey;
+				});
+				*/
+
+		    } else {
+		        /*// Checkbox is unchecked
+		        delete myTags[tagKey];  //remove from the tags{} object
+
+		        var colorBox = document.getElementById("colorBox" + tagKey);
+		        //remove the color box radio option
+				document.getElementById("primaryTagOptions").removeChild(colorBox);
+
+
+				//update the primary tag selection.
+				if(primaryTagKey == tagKey){
+					var numMyTags = Object.keys(myTags).length;//number of tags.
+		        	if(numMyTags == 0){//if there are no tags left
+		        		primaryTagKey = null;
+		        	}else{
+		        		primaryTagKey = null;
+
+		        		//set the primaryTagKey to whatever tag is first added to the myTags list. 
+		        		var newPrimary = Object.keys(myTags)[0];
+		        		updateUIPrimaryTag(newPrimary);
+		        		//editedAnnotJSON.primaryTagKey = newPrimary;
+		        	}
+				}*/
+		    }
+		});
+	goalRow.append(checkbox);
+
 
 	//append a text field
 	//within that row, have the shortcut field.
 	var cell = document.createElement("div");
+		cell.style.display="inline-block";
+		cell.style.position="absolute!important";
+		cell.style.left="5px";
 		cell.style.background="white";
 		cell.style.position="relative";//alows to stack atop one another. 
 		//cell.style.bottom="50%";
-		cell.style.width = "95%";
+		cell.style.width = "85%";
 		cell.style.minHeight = "20px";
-		cell.style.paddingRight = "5%";
+		//cell.style.paddingRight = "5%";
 		cell.style.marginBottom = "5%";
+
 		//cell.style.borderBottom = "solid";
 		cell.style.borderWidth = "0.5px";
 		cell.id = "newTag" + "cell1";
@@ -508,7 +596,9 @@ function newGoal(){
 
 			return false;
 		}//end of click1()
-	document.getElementById("goalDiv").append(cell);
+
+	goalRow.append(cell);
+	document.getElementById("goalDiv").append(goalRow);
 
 	//add listener that, when the text field is activated and "Enter" is hit, then the goal is stored in storage
 	//and the text field solidifies into a div with a listener on it. 
@@ -528,11 +618,11 @@ function newSubGoal(){
 		cell.style.background="white";
 		cell.style.position="relative";//alows to stack atop one another. 
 		//cell.style.bottom="50%";
-		cell.style.width = "85%";
+		cell.style.width = "75%";
 		cell.style.minHeight = "20px";
 		cell.style.paddingRight = "5%";
 		cell.style.marginBottom = "5%";
-		cell.style.marginLeft="10%";
+		cell.style.marginLeft="20%";
 		//cell.style.borderBottom = "solid";
 		cell.style.borderWidth = "0.5px";
 		cell.id = "newTag" + "cell1";
