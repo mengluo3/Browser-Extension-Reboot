@@ -205,6 +205,36 @@ function addStickyNote(){
 			           newGoal();
 			    }); 
 
+		    //Create a new button element. This is the button for adding a new goal.
+		    var plusSub = document.createElement('div');
+		    	plusSub.innerHTML ="+";
+
+		    	plusSub.style.fontFamily="Roboto, Calibri";
+		    	plusSub.style.textAlign = "center"; 
+		    	plusSub.style.textDecoration = "none";
+		    	plusSub.id="addGoalButton";
+		    	plusSub.style.width = "20px";
+		    	plusSub.style.height = "20px";
+		    	plusSub.style.borderWidth = "1px";
+		    	plusSub.style.borderStyle = "solid";
+		    	plusSub.style.borderColor="gray";
+		    	plusSub.style.borderRadius="10%";
+		    	plusSub.style.background = "white";
+		    	plusSub.style.color = "gray";
+		    	plusSub.style.fontWeight="700";
+		    	plusSub.style.position = "absolute";
+		    	plusSub.style.right = "15%";
+		        plusSub.style.bottom = "10px";
+
+		     
+		     	document.getElementById("sticky").append(plusSub); 
+		     	plusSub.addEventListener ("mouseover", function() {
+		              this.style.cursor = "pointer";
+		        }); 
+		     	plusSub.addEventListener ("click", function() {
+		              newSubGoal();
+		        }); 
+
 			
 			//Create a new p element. This is the 'GOAL" heading at the top of the sticky note.
 			var heading = document.createElement("p");  
@@ -213,8 +243,7 @@ function addStickyNote(){
 				heading.style.margin="10%";
 				heading.style.marginBottom="5%";
 				//heading.innerText = "🌱 TASKS"; 
-				//heading.innerText = "✨ TASKS"; 
-				heading.innerText = "TASKS"; 
+				heading.innerText = "✨ TASKS"; 
 				//cell.innerHTML="Write your new task here!✨";           
 				document.getElementById("sticky").append(heading);                     
 
@@ -365,7 +394,7 @@ function newGoal(){
 		//cell.innerHTML="Write your new task here!✨";
 		cell.innerHTML="Write your new task here!";
 		cell.style.color = "gray";
-		//cell.contentEditable="true";
+		cell.contentEditable="true";
 		cell.outline="none";
 		cell.style.textDecoration = "none";
 
@@ -373,7 +402,7 @@ function newGoal(){
 		cell.addEventListener('mouseover', function(e){
 			this.style.cursor = "text";
 			cell.style.color = "black";
-			//cell.style.textDecoration = "underline";
+			cell.style.textDecoration = "underline";
 			cell.addEventListener('mouseout', function mouseOut(e){
 				cell.style.borderBottom = "none";
 				cell.style.textDecoration = "none";
@@ -381,7 +410,7 @@ function newGoal(){
 			});
 		});
 
-		cell.addEventListener('click', click1, false);
+		//cell.addEventListener('click', click1, false);
 
 		function click1(e){
 			cell.innerHTML = "";
@@ -486,6 +515,150 @@ function newGoal(){
 }
 
 
+
+/**
+ * Function for adding a new "sub" goal to the sticky note. 
+ **/
+function newSubGoal(){
+	console.log("adding a new sub goal");
+
+	//append a text field
+	//within that row, have the shortcut field.
+	var cell = document.createElement("div");
+		cell.style.background="white";
+		cell.style.position="relative";//alows to stack atop one another. 
+		//cell.style.bottom="50%";
+		cell.style.width = "85%";
+		cell.style.minHeight = "20px";
+		cell.style.paddingRight = "5%";
+		cell.style.marginBottom = "5%";
+		cell.style.marginLeft="10%";
+		//cell.style.borderBottom = "solid";
+		cell.style.borderWidth = "0.5px";
+		cell.id = "newTag" + "cell1";
+		cell.style.fontFamily = "Roboto, Calibri!important"; 
+		//cell.innerHTML="Write your new task here!✨";
+		cell.innerHTML="Write your new task here!";
+		cell.style.color = "gray";
+		cell.contentEditable="true";
+		cell.outline="none";
+		cell.style.textDecoration = "none";
+
+
+		cell.addEventListener('mouseover', function(e){
+			this.style.cursor = "text";
+			cell.style.color = "black";
+			cell.style.textDecoration = "underline";
+			cell.addEventListener('mouseout', function mouseOut(e){
+				cell.style.borderBottom = "none";
+				cell.style.textDecoration = "none";
+				cell.removeEventListener('mouseout', mouseOut);
+			});
+		});
+
+		//cell.addEventListener('click', click1, false);
+
+		function click1(e){
+			cell.innerHTML = "";
+			cell.style.width = "95%";
+
+			cell.removeEventListener('click', click1, false);
+			//append a text-input field to cell
+			var textField = document.createElement("input");
+				textField.type = "text";
+				textField.style.width = "95%";
+				textField.value = dummyInput;
+				textField.style.fontSize = "1em";//0.8 of root font size
+				textField.style.fontFamily = "Roboto, Calibri!important"; 
+				textField.style.border = "none!important"; 
+
+
+
+			cell.append(textField);
+
+
+
+			var clickedOutside = false;//if the user clicked elsewhere on the page
+			document.addEventListener('mousedown', clickedOutsideFunction, false);
+
+			function clickedOutsideFunction(e){
+				let clickedElement = e.target; // clicked element
+				if(e.target != textField){
+					clickedOutside = true;
+					submit(e);
+				}
+			}
+
+			//if the user hits enter and releases, then update the tags object and remove the keyup listener. 
+			cell.addEventListener("keyup", submit, false);
+
+			function submit(event){
+				if(event.key == "Enter"){//if the key is the "Enter" key
+					//updates the tags object shortcut
+					//newTag.shortcut = textField.value;
+					dummyInput = textField.value;
+
+					//remove the text field now.
+					//updates the table to accomodate this
+					cell.innerHTML = textField.value;
+					cell.style.width="95%!important";
+					cell.style.borderBottom = "none";
+					cell.style.color = "black";
+					cell.addEventListener('mouseover', function(e){
+						cell.style.borderBottom = "solid";
+						cell.style.borderWidth="0.1px";
+						cell.addEventListener('mouseout', function mouseOut(e){
+							cell.style.borderBottom = "none";
+							cell.removeEventListener('mouseout', mouseOut);
+						});
+					});
+
+					cell.removeEventListener("keyup", submit, false);
+					document.removeEventListener('mousedown', clickedOutsideFunction, false);
+					cell.addEventListener('click', click1, false);//re-add the event listener so the user can edit again
+					
+					event.preventDefault();
+					return false;
+				}
+
+				if(clickedOutside == true){
+					//updates the tags object shortcut
+					//newTag.shortcut = textField.value;
+
+					dummyInput = textField.value;
+
+					//remove the text field now.
+					//updates the table to accomodate this
+					cell.innerHTML = textField.value;
+					cell.style.width="95%!important";
+					cell.style.borderBottom = "none";
+					cell.style.color = "black";
+					cell.addEventListener('mouseover', function(e){
+						cell.style.borderBottom = "solid";
+						cell.style.borderWidth="0.1px";
+						cell.addEventListener('mouseout', function mouseOut(e){
+							cell.style.borderBottom = "none";
+							cell.removeEventListener('mouseout', mouseOut);
+						});
+					});
+
+					clickedOutside = false;
+					document.removeEventListener('mousedown', clickedOutsideFunction, false);
+					cell.addEventListener('click', click1, false);//re-add the event listener so the user can edit again
+					
+					event.preventDefault();
+					return false;
+				}
+
+			}//end of keyup()
+
+			return false;
+		}//end of click1()
+	document.getElementById("goalDiv").append(cell);
+
+	//add listener that, when the text field is activated and "Enter" is hit, then the goal is stored in storage
+	//and the text field solidifies into a div with a listener on it. 
+}
 
 
 
