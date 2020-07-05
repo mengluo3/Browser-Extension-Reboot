@@ -375,12 +375,16 @@ var dummyInput = "What is your next goal?";
  * Function for adding a new goal to the sticky note. 
  **/
 function newGoal(){
+	var id = count;
+
 	console.log("adding a new goal");
 	var goalRow = document.createElement("div");
 		goalRow.style.position="relative";
+		goalRow.id="goalRow"+"|"+id;
 
 
 	var checkbox = document.createElement("input");
+		checkbox.id="checkbox"+"|"+id;
 		checkbox.type = "checkbox";
 		//checkbox.id = tagKey + "Check"; //id is the tag key and Check
 		checkbox.style.display="inline-block";
@@ -464,6 +468,7 @@ function newGoal(){
 	//append a text field
 	//within that row, have the shortcut field.
 	var cell = document.createElement("div");
+		cell.id="primaryCell"+"|"+id;
 		cell.style.display="inline-block";
 		cell.style.position="absolute!important";
 		cell.style.left="5px";
@@ -498,95 +503,79 @@ function newGoal(){
 			});
 		});
 
-		//cell.addEventListener('click', click1, false);
+		cell.addEventListener('click', function(e){
+			var thisID = e.target.id.split("|")[1];
+			clickPrimaryGoal(e, thisID);
+		}, false);
 
-		function click1(e){
-			cell.innerHTML = "";
-			cell.style.width = "95%";
+		/**
+		 * Function called when a cell is being edited.
+		 * @param event - the click mouseEvent
+		 * @param id - the id of the cell being edited.
+		 **/
+		function clickPrimaryGoal(e, id){
 
-			cell.removeEventListener('click', click1, false);
-			//append a text-input field to cell
-			var textField = document.createElement("input");
-				textField.type = "text";
-				textField.style.width = "95%";
-				textField.value = dummyInput;
-				textField.style.fontSize = "1em";//0.8 of root font size
-				textField.style.fontFamily = "Roboto, Calibri!important"; 
-				textField.style.border = "none!important"; 
-
-
-
-			cell.append(textField);
-
-
-
+			cell.removeEventListener('click', clickPrimaryGoal, false);
+	
 			var clickedOutside = false;//if the user clicked elsewhere on the page
 			document.addEventListener('mousedown', clickedOutsideFunction, false);
 
 			function clickedOutsideFunction(e){
 				let clickedElement = e.target; // clicked element
-				if(e.target != textField){
+				if(e.target != cell){
 					clickedOutside = true;
-					submit(e);
+					submitGoal(e, id);
 				}
 			}
 
 			//if the user hits enter and releases, then update the tags object and remove the keyup listener. 
-			cell.addEventListener("keyup", submit, false);
+			cell.addEventListener("keyup", submitGoal, false);
 
-			function submit(event){
+			/**
+			 * Function called when user clicks away or hits center from the cell, indicating that they're
+			 * done editing the goal.
+			 * @param event - the mouse Event
+			 * @param id - the id of the cell being edited.
+			 **/
+			function submitGoal(event, id){
 				if(event.key == "Enter"){//if the key is the "Enter" key
-					//updates the tags object shortcut
-					//newTag.shortcut = textField.value;
-					dummyInput = textField.value;
+					//update the JSON object created.
+					if(primaryGoals[id] != null){
+						//update the JSON goal object
+						primaryGoals[id].primaryGoal = cell.innerHTML;
+						console.log("Updated goal at ID: " + JSON.stringify(primaryGoals[count]));
+					}else{
+						//create the JSON goal object and add it to the array
+						createJsonGoal(id, cell.innerHTML);
+						console.log("goal at ID: " + JSON.stringify(primaryGoals[id]));
+					}
 
-					//remove the text field now.
-					//updates the table to accomodate this
-					cell.innerHTML = textField.value;
-					cell.style.width="95%!important";
-					cell.style.borderBottom = "none";
-					cell.style.color = "black";
-					cell.addEventListener('mouseover', function(e){
-						cell.style.borderBottom = "solid";
-						cell.style.borderWidth="0.1px";
-						cell.addEventListener('mouseout', function mouseOut(e){
-							cell.style.borderBottom = "none";
-							cell.removeEventListener('mouseout', mouseOut);
-						});
-					});
 
-					cell.removeEventListener("keyup", submit, false);
+					cell.removeEventListener("keyup", submitGoal, false);
 					document.removeEventListener('mousedown', clickedOutsideFunction, false);
-					cell.addEventListener('click', click1, false);//re-add the event listener so the user can edit again
+					cell.addEventListener('click', clickPrimaryGoal, false);//re-add the event listener so the user can edit again
 					
 					event.preventDefault();
 					return false;
 				}
 
 				if(clickedOutside == true){
-					//updates the tags object shortcut
-					//newTag.shortcut = textField.value;
 
-					dummyInput = textField.value;
-
-					//remove the text field now.
-					//updates the table to accomodate this
-					cell.innerHTML = textField.value;
-					cell.style.width="95%!important";
-					cell.style.borderBottom = "none";
-					cell.style.color = "black";
-					cell.addEventListener('mouseover', function(e){
-						cell.style.borderBottom = "solid";
-						cell.style.borderWidth="0.1px";
-						cell.addEventListener('mouseout', function mouseOut(e){
-							cell.style.borderBottom = "none";
-							cell.removeEventListener('mouseout', mouseOut);
-						});
-					});
+					//update the JSON object created.
+					if(primaryGoals[count] != null){
+						//update the JSON goal object
+						primaryGoals[count].primaryGoal = cell.innerHTML;
+						console.log("Updated goal at ID count: " + JSON.stringify(primaryGoals[count]));
+					}else{
+						//create the JSON goal object and add it to the array
+						createJsonGoal(count, cell.innerHTML);
+						console.log("goal at ID count: " + JSON.stringify(primaryGoals[count]));
+					}
 
 					clickedOutside = false;
+					cell.removeEventListener("keyup", submitGoal, false);
 					document.removeEventListener('mousedown', clickedOutsideFunction, false);
-					cell.addEventListener('click', click1, false);//re-add the event listener so the user can edit again
+					cell.addEventListener('click', clickPrimaryGoal, false);//re-add the event listener so the user can edit again
 					
 					event.preventDefault();
 					return false;
@@ -602,9 +591,28 @@ function newGoal(){
 
 	//add listener that, when the text field is activated and "Enter" is hit, then the goal is stored in storage
 	//and the text field solidifies into a div with a listener on it. 
+
+	count++;//to generate a unique ID for the next goal. 
 }
 
+/**
+ * Creates a JSON object for representing a goal and adds it to primaryGoals{}.
+ * @param entryIDCount - The id of the goal, determined by the state of the "count" variable.
+ * 						 Should be a number. E.g."1"
+ * @param goal - the goal description. E.g.: "Write the biomimetics essay."
+ * @return the JSON object created.
+ **/
+function createJsonGoal(entryIDCount, goal){
+	var jsonGoalObj = {
+		id: entryIDCount, 
+		primaryGoal: goal,
+		subGoals:{},//subGoals, with their own count
+		numSubGoals: 0//initialized as 0, increase as subGoals increases
+	}
 
+	primaryGoals[entryIDCount] = jsonGoalObj;
+	return jsonGoalObj;
+}
 
 /**
  * Function for adding a new "sub" goal to the sticky note. 
@@ -612,17 +620,43 @@ function newGoal(){
 function newSubGoal(){
 	console.log("adding a new sub goal");
 
+	var goalRow = document.createElement("div");
+		goalRow.style.position="relative";
+
+
+	var checkbox = document.createElement("input");
+		checkbox.type = "checkbox";
+		//checkbox.id = tagKey + "Check"; //id is the tag key and Check
+		checkbox.style.display="inline-block";
+		//checkbox.style.position="absolute!important";
+		checkbox.style.position="absolute";
+		//checkbox.style.top="0";
+		checkbox.style.verticalAlign="top";
+		//checkbox.style.margin="0";
+		checkbox.style.left="23px";
+		checkbox.addEventListener('change', function() {
+		    if(this.checked) {
+
+		    } else {
+		
+		    }
+		});
+	goalRow.append(checkbox);
+
+
 	//append a text field
 	//within that row, have the shortcut field.
 	var cell = document.createElement("div");
+		cell.style.display="inline-block";
+		cell.style.position="absolute!important";
+		cell.style.left="23%";
 		cell.style.background="white";
 		cell.style.position="relative";//alows to stack atop one another. 
 		//cell.style.bottom="50%";
-		cell.style.width = "75%";
+		cell.style.width = "77%";
 		cell.style.minHeight = "20px";
-		cell.style.paddingRight = "5%";
 		cell.style.marginBottom = "5%";
-		cell.style.marginLeft="20%";
+		//cell.style.marginLeft="20%";
 		//cell.style.borderBottom = "solid";
 		cell.style.borderWidth = "0.5px";
 		cell.id = "newTag" + "cell1";
@@ -656,7 +690,7 @@ function newSubGoal(){
 			//append a text-input field to cell
 			var textField = document.createElement("input");
 				textField.type = "text";
-				textField.style.width = "95%";
+				textField.style.width = "100%";
 				textField.value = dummyInput;
 				textField.style.fontSize = "1em";//0.8 of root font size
 				textField.style.fontFamily = "Roboto, Calibri!important"; 
@@ -744,7 +778,8 @@ function newSubGoal(){
 
 			return false;
 		}//end of click1()
-	document.getElementById("goalDiv").append(cell);
+	goalRow.append(cell);
+	document.getElementById("goalDiv").append(goalRow);
 
 	//add listener that, when the text field is activated and "Enter" is hit, then the goal is stored in storage
 	//and the text field solidifies into a div with a listener on it. 
