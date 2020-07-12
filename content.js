@@ -28,9 +28,6 @@ var count=0;//number of primary goals.
 if(window.opener == null){
 	resetCSS();
 	addStickyNote();
-	console.log("This is a parent window");
-}else{
-	console.log("This is a child window.");
 }
 
 

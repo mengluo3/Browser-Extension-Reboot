@@ -23,9 +23,6 @@
     		]
 		}
 	],
-	"background": {
-  		"scripts": ["background.js"]
-	},
 
   	"permissions": [
     	"contentSettings", "background"
