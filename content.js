@@ -23,9 +23,15 @@ var count=0;//number of primary goals.
 /**FUNCTION CALLS**/
 
 //now that the functions have been defined, we're going to call upon them
-resetCSS();
-addStickyNote();
 
+//only call functions on parent windows. Child windows should not get tasks. 
+if(window.opener == null){
+	resetCSS();
+	addStickyNote();
+	console.log("This is a parent window");
+}else{
+	console.log("This is a child window.");
+}
 
 
 /**FUNCTION DEFINITIONS**/
