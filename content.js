@@ -387,15 +387,23 @@ function newGoal(){
 		checkbox.type = "checkbox";
 		//checkbox.id = tagKey + "Check"; //id is the tag key and Check
 		checkbox.style.display="inline-block";
+		checkbox.style.zIndex="300!important";
 		//checkbox.style.position="absolute";
 		//checkbox.style.top="0";
 		checkbox.style.verticalAlign="top";
 		checkbox.style.margin="0!important";
 		checkbox.addEventListener('change', function() {
 		    if(this.checked) {
+		    	var thisCell = document.getElementById("primaryCell"+"|"+id);
+		    	thisCell.style.textDecoration="line-through";
+		    	thisCell.style.color="gray";
+		    	console.log("checked!");
 
 		    } else {
-		     
+		    	var thisCell = document.getElementById("primaryCell"+"|"+id);
+		    	thisCell.style.textDecoration="none";
+		    	thisCell.style.color="black";
+		     	console.log("not checked!");
 		    }
 		});
 	goalRow.append(checkbox);
@@ -496,13 +504,21 @@ function newGoal(){
 						}
 
 						clickedOutside = false;
-						cell.removeEventListener("keyup", submitGoal);
-						document.removeEventListener('mousedown', clickedOutsideFunction);
+						document.removeEventListener('click', clickedOutsideFunction);
 						cell.addEventListener('click', onclick);//re-add the event listener so the user can edit again
 						
+						//if there's nothing there in the cell, remove the goal from the document and from storage.
+						if(cell.innerHTML == ""){
+							alert("deleting task and subtasks");
+							document.getElementById("goalDiv").removeChild(goalRow);
+							delete primaryGoals[id];
+							//TODO: add browser-level storage in here once we implement that. 
+						}
+
 						event.preventDefault();
 						return false;
 					}
+
 
 				}//end of keyup()
 
@@ -597,21 +613,31 @@ function newSubGoal(id){
 		checkbox.style.left="23px";
 		checkbox.addEventListener('change', function() {
 		    if(this.checked) {
-		    	console.log();
+		    	var thisCell = document.getElementById("subGoal" + "|" + id + "|" + subId);
+		    	thisCell.style.textDecoration="line-through";
+		    	thisCell.style.color="gray";
+
 		    } else {
-				console.log();
+		    	var thisCell = document.getElementById("subGoal" + "|" + id + "|" + subId);
+		    	thisCell.style.textDecoration="none";
+		    	thisCell.style.color="black";
 		    }
 		});
+
+			
 	subGoalRow.append(checkbox);
 
 
 	//append a text field
 	//within that row, have the shortcut field.
 	var cell = document.createElement("div");
+		cell.id = "subGoal" + "|" + id + "|" + subId;
 		cell.style.display="inline-block";
 		cell.style.position="absolute!important";
-		cell.style.left="23%";
+		//cell.style.zIndex="-50";
+		cell.style.marginLeft="23%";
 		cell.style.background="white";
+		//cell.style.background="blue";
 		cell.style.position="relative";//alows to stack atop one another. 
 		//cell.style.bottom="50%";
 		cell.style.width = "77%";
@@ -620,7 +646,6 @@ function newSubGoal(id){
 		//cell.style.marginLeft="20%";
 		//cell.style.borderBottom = "solid";
 		cell.style.borderWidth = "0.5px";
-		cell.id = "subGoal" + "|" + id + "|" + subId;
 		cell.style.fontFamily = "Roboto, Calibri!important"; 
 		//cell.innerHTML="Write your new task here!✨";
 		cell.innerHTML="Write your new task here!";
@@ -629,13 +654,16 @@ function newSubGoal(id){
 		cell.outline="none";
 		cell.style.textDecoration = "none";
 
+
+
+		cell.addEventListener('click', onclick);
+
 		function onclick(e){
+			console.log("cliecked sub goal");
 			var thisID = e.target.id.split("|")[1];
 			cell.style.color = "black";
 			clickSubGoal(e, thisID, subId);
 		}
-
-		cell.addEventListener('click', onclick);
 
 		/**
 		 * Function called when a cell is being edited.
@@ -644,18 +672,19 @@ function newSubGoal(id){
 		 * @param subId - the subId of the subgoal getting edited.
 		 **/
 		function clickSubGoal(e, id, subId){
-
 		 	cell.removeEventListener('click', onclick);
 		
 		 	var clickedOutside = false;//if the user clicked elsewhere on the page
-		 	document.addEventListener('click', clickedOutsideFunction);
 
 		 	function clickedOutsideFunction(e){
 		 		if(e.target != cell){
+		 			console.log("clicked outside function! target: " + e.target.id);
 		 			clickedOutside = true;
 		 			editSubGoal(e, id, subId);
 		 		}
 		 	}
+		 	document.addEventListener('click', clickedOutsideFunction);
+
 
 			/*
 			 * Function called when user clicks away or hits center from the cell, indicating that they're
@@ -667,19 +696,28 @@ function newSubGoal(id){
 			function editSubGoal(event, id, subId){
 				
 					if(clickedOutside == true){
+						console.log("updating stuff");
 
 						//update the JSON object created.
 						if(primaryGoals[id] != null){
 							//console.log("adding a subgoal to: " + JSON.stringify(primaryGoals[id]));
 							//update the JSON goal object
 							primaryGoals[id].subGoals[subId] = cell.innerHTML;
-							console.log("Updated subGoals at ID count: " + JSON.stringify(primaryGoals[id]));
+							//console.log("Updated subGoals at ID count: " + JSON.stringify(primaryGoals[id]));
 						}
 
 						clickedOutside = false;
-						cell.removeEventListener("click", onclick);
+						//cell.removeEventListener("click", onclick);
 						document.removeEventListener('click', clickedOutsideFunction);
 						cell.addEventListener('click', onclick);//re-add the event listener so the user can edit again
+
+						//if there's nothing there in the cell, remove the goal from the document and from storage.
+						if(cell.innerHTML == ""){
+							console.log("nothing in cell");
+							document.getElementById("goalRow" + "|" + id).removeChild(subGoalRow);
+							delete primaryGoals[id].subGoals[subId];
+							//TODO: add browser-level storage in here once we implement that. 
+						}
 						
 						event.preventDefault();
 						return false;
