@@ -16,7 +16,7 @@ var initX, initY, mousePressX, mousePressY, boxWidth = 250, boxHeight = 100;
 
 //for storing goals 
 var primaryGoals={};//goals are stored with key-value pairs. 
-var count=0;//number of primary goals. 
+var count=-1;//number of primary goals. 
 
 
 
@@ -26,12 +26,411 @@ var count=0;//number of primary goals.
 
 //only call functions on parent windows. Child windows should not get tasks. 
 if(window.opener == null){
+	//localStorage.clear();
+	hi();
+	//console.log("scripts up and running");
 	resetCSS();
 	addStickyNote();
+	loadGoalsFromStorage();
 }
 
 
 /**FUNCTION DEFINITIONS**/
+function hi(){
+	//console.log("hi");
+ 	//iterate through localStorage. 
+ 	for (var i = 0; i < localStorage.length; i++){
+
+      // console.log("iterating through localStorage");
+      var key = localStorage.key(i);
+      //console.log("key in localStorage: " + key);
+  	}
+}
+
+
+
+/**
+ * Load in goals from localStorage.
+ **/
+ function loadGoalsFromStorage(){
+ 	//iterate through localStorage. 
+ 	for (var i = 0; i < localStorage.length; i++){
+
+      // console.log("iterating through localStorage");
+      var key = localStorage.key(i);
+      //console.log("key in localStorage: " + key);
+            //console.log("key: " + key);
+
+      var keyType=key.split("|")[0];
+
+      if(keyType == "goal"){
+      	var id = key.split("|")[1];
+      	primaryGoals[id] = JSON.parse(localStorage.getItem(key));
+      	//console.log("added to primaryGoals: " + primaryGoals[id]);
+      }
+
+      if(keyType == "goalCount"){
+      	count = localStorage.getItem(key);
+	  }
+	}
+
+	//if count is still null, then set to 0. 
+	if(count == -1){
+		count = 0;
+		localStorage.setItem("goalCount", 0);
+	}
+
+
+	//Now render all the goals and subgoals
+	Object.keys(primaryGoals).forEach(function(goalID){
+		renderGoal(goalID);
+	});
+ }
+
+
+ /**
+ * Function for adding a pre-existing goal onto sticky note.
+ * @param id - the primaryGoal's id in primaryGoals{}.
+ **/
+function renderGoal(id){
+	//console.log("rendering goal");
+	var goalJSON = primaryGoals[id];
+
+	var goalRow = document.createElement("div");
+		goalRow.style.position="relative";
+		goalRow.id="goalRow"+"|"+id;
+
+
+	var checkbox = document.createElement("input");
+		checkbox.id="checkbox"+"|"+id;
+		checkbox.type = "checkbox";
+		//checkbox.id = tagKey + "Check"; //id is the tag key and Check
+		checkbox.style.display="inline-block";
+		checkbox.style.zIndex="300!important";
+		//checkbox.style.position="absolute";
+		//checkbox.style.top="0";
+		checkbox.style.verticalAlign="top";
+		checkbox.style.margin="0!important";
+		checkbox.addEventListener('change', function() {
+		    if(this.checked) {
+		    	var thisCell = document.getElementById("primaryCell"+"|"+id);
+		    	thisCell.style.textDecoration="line-through";
+		    	thisCell.style.color="gray";
+		    	console.log("checked!");
+
+		    } else {
+		    	var thisCell = document.getElementById("primaryCell"+"|"+id);
+		    	thisCell.style.textDecoration="none";
+		    	thisCell.style.color="black";
+		     	console.log("not checked!");
+		    }
+		});
+	goalRow.append(checkbox);
+
+
+	//append a text field
+	//within that row, have the shortcut field.
+	var cell = document.createElement("div");
+		cell.id="primaryCell"+"|"+id;
+		cell.style.display="inline-block";
+		cell.style.position="absolute!important";
+		cell.style.left="5px";
+		cell.style.background="white";
+		cell.style.position="relative";//alows to stack atop one another. 
+		//cell.style.bottom="50%";
+		cell.style.width = "80%";
+		cell.style.minHeight = "20px";
+		//cell.style.paddingRight = "5%";
+		cell.style.marginBottom = "5%";
+
+		//cell.style.borderBottom = "solid";
+		cell.style.borderWidth = "0.5px";
+		cell.style.fontFamily = "Roboto, Calibri!important"; 
+		//cell.innerHTML="Write your new task here!✨";
+		cell.innerHTML = goalJSON.primaryGoal;
+		cell.contentEditable="true";
+		cell.outline="none";
+		cell.style.textDecoration = "none";
+
+			function onclick(e){
+				var thisID = e.target.id.split("|")[1];
+				cell.style.color = "black";
+				clickPrimaryGoal(e, thisID);
+			}
+
+			cell.addEventListener('click', onclick);
+
+			/**
+			 * Function called when a cell is being edited.
+			 * @param event - the click mouseEvent
+			 * @param id - the id of the cell being edited.
+			 **/
+			function clickPrimaryGoal(e, id){
+				cell.removeEventListener('click', onclick);
+		
+				var clickedOutside = false;//if the user clicked elsewhere on the page
+				document.addEventListener('click', clickedOutsideFunction);
+
+				function clickedOutsideFunction(e){
+					let clickedElement = e.target; // clicked element
+					if(e.target != cell){
+						clickedOutside = true;
+						submitGoal(e, id);
+					}
+				}
+
+				//if the user hits enter and releases, then update the tags object and remove the keyup listener. 
+				//cell.addEventListener("keyup", submitGoal, false);
+
+				/**
+				 * Function called when user clicks away or hits center from the cell, indicating that they're
+				 * done editing the goal.
+				 * @param event - the mouse Event
+				 * @param id - the id of the cell being edited.
+				 **/
+				function submitGoal(event, id){
+
+					if(clickedOutside == true){
+
+						//update the JSON object created.
+						if(primaryGoals[id] != null){
+							//update the JSON goal object
+							primaryGoals[id].primaryGoal = cell.innerHTML;
+							localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
+							console.log("localStorage stored: " + localStorage.getItem("goal|" + id));
+						}else{
+							//create the JSON goal object and add it to the array
+							createJsonGoal(id, cell.innerHTML);
+						}
+
+						clickedOutside = false;
+						document.removeEventListener('click', clickedOutsideFunction);
+						cell.addEventListener('click', onclick);//re-add the event listener so the user can edit again
+						
+						//if there's nothing there in the cell, remove the goal from the document and from storage.
+						if(cell.innerHTML == ""){
+							//alert("deleting task and subtasks");
+							document.getElementById("goalDiv").removeChild(goalRow);
+							delete primaryGoals[id];
+							//TODO: add browser-level storage in here once we implement that. 
+						}
+
+						event.preventDefault();
+						return false;
+					}
+
+
+				}//end of keyup()
+
+				return false;
+			}//end of click1()
+
+	goalRow.append(cell);
+
+	//Create a new button element. This is the button for adding a new goal.
+    var plusSub = document.createElement('div');
+    	plusSub.innerHTML ="+";
+
+    	plusSub.style.fontFamily="Roboto, Calibri";
+    	plusSub.style.textAlign = "center"; 
+    	plusSub.style.textDecoration = "none";
+    	plusSub.id="plusSub" + "|" + id;
+    	plusSub.style.width = "15px";
+    	plusSub.style.height = "15px";
+    	plusSub.style.borderWidth = "1px";
+    	plusSub.style.borderStyle = "solid";
+    	plusSub.style.borderColor="gray";
+    	plusSub.style.borderRadius="10%";
+    	plusSub.style.background = "white";
+    	plusSub.style.color = "gray";
+    	plusSub.style.fontWeight="700";
+    	plusSub.style.fontSize="0.8em";
+    	plusSub.style.display = "inline-block";
+    	plusSub.style.position = "absolute";
+    	plusSub.style.right = "0";
+    	plusSub.style.marginTop = "5px";
+
+     
+     	goalRow.append(plusSub); 
+     	plusSub.addEventListener ("mouseover", function() {
+              this.style.cursor = "pointer";
+        }); 
+     	plusSub.addEventListener ("click", function() {
+              newSubGoal(id);
+        }); 
+
+
+	document.getElementById("goalDiv").append(goalRow);
+
+
+
+	//Now iterate through all the subgoals and append.
+	var subGoalsJSON = goalJSON['subGoals'];	// JSON object of subgoals. 
+												// A subgoal is just an id (determined by numSubGoals) for a key, 
+												// and a string for the value. 
+	Object.keys(subGoalsJSON).forEach(key =>{
+		console.log("Subgoal: key: " + key + ", value: " + subGoalsJSON[key]['subGoalText']);
+		renderSubGoal(id, key);
+	});
+
+}
+
+
+ /**
+ * Function for adding a pre-existing goal onto sticky note.
+ * @param id - the primaryGoal's id in primaryGoals{}.
+ * @param subId - the subgoal's id in primaryGoals[id].subGoals[].
+ **/
+function renderSubGoal(id, subId){
+	//console.log("rendering goal");
+	var subGoalText = primaryGoals[id]['subGoals'][subId]['subGoalText'];
+
+
+	var subGoalRow = document.createElement("div");
+		subGoalRow.style.position="relative";
+		subGoalRow.style.width="100%";
+
+
+	var checkbox = document.createElement("input");
+		checkbox.type = "checkbox";
+		//checkbox.id = tagKey + "Check"; //id is the tag key and Check
+		checkbox.style.display="inline-block";
+		//checkbox.style.position="absolute!important";
+		checkbox.style.position="absolute";
+		//checkbox.style.top="0";
+		checkbox.style.verticalAlign="top";
+		//checkbox.style.margin="0";
+		checkbox.style.left="23px";
+		checkbox.addEventListener('change', function() {
+		    if(this.checked) {
+		    	var thisCell = document.getElementById("subGoal" + "|" + id + "|" + subId);
+		    	primaryGoals[id]['subGoals'][subId]['isChecked'] = true;
+		    	//updated in localStorage
+		    	localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
+		    	thisCell.style.textDecoration="line-through";
+		    	thisCell.style.color="gray";
+		    } else {
+		    	var thisCell = document.getElementById("subGoal" + "|" + id + "|" + subId);
+		    	primaryGoals[id]['subGoals'][subId]['isChecked'] = false;
+		    	//updated in localStorage
+		    	localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
+		    	thisCell.style.textDecoration="none";
+		    	thisCell.style.color="black";
+		    }
+		});
+
+			
+	subGoalRow.append(checkbox);
+
+
+	//append a text field
+	var cell = document.createElement("div");
+		cell.id = "subGoal" + "|" + id + "|" + subId;
+		cell.style.display="inline-block";
+		cell.style.position="absolute!important";
+		//cell.style.zIndex="-50";
+		cell.style.marginLeft="23%";
+		cell.style.background="white";
+		//cell.style.background="blue";
+		cell.style.position="relative";//alows to stack atop one another. 
+		//cell.style.bottom="50%";
+		cell.style.width = "77%";
+		cell.style.minHeight = "20px";
+		cell.style.marginBottom = "5%";
+		//cell.style.marginLeft="20%";
+		//cell.style.borderBottom = "solid";
+		cell.style.borderWidth = "0.5px";
+		cell.style.fontFamily = "Roboto, Calibri!important"; 
+		//cell.innerHTML="Write your new task here!✨";
+		cell.innerHTML=subGoalText;
+		cell.contentEditable="true";
+		cell.outline="none";
+		cell.style.textDecoration = "none";
+
+
+
+		cell.addEventListener('click', onclick);
+
+		function onclick(e){
+			console.log("cliecked sub goal");
+			var thisID = e.target.id.split("|")[1];
+			cell.style.color = "black";
+			clickSubGoal(e, thisID, subId);
+		}
+
+		/**
+		 * Function called when a cell is being edited.
+		 * @param e - the click mouseEvent
+		 * @param id - the id of the goal being edited, getting a subGoal added to it.
+		 * @param subId - the subId of the subgoal getting edited.
+		 **/
+		function clickSubGoal(e, id, subId){
+		 	cell.removeEventListener('click', onclick);
+		
+		 	var clickedOutside = false;//if the user clicked elsewhere on the page
+
+		 	function clickedOutsideFunction(e){
+		 		if(e.target != cell){
+		 			console.log("clicked outside function! target: " + e.target.id);
+		 			clickedOutside = true;
+		 			editSubGoal(e, id, subId);
+		 		}
+		 	}
+		 	document.addEventListener('click', clickedOutsideFunction);
+
+
+			/*
+			 * Function called when user clicks away or hits center from the cell, indicating that they're
+			 * done editing the goal.
+			 * @param event - the mouse Event
+			 * @param id - the id of the cell being edited.
+			 * @param subId - the id of the subGoal being edited.
+			 */
+			function editSubGoal(event, id, subId){
+				
+					if(clickedOutside == true){
+						console.log("updating stuff");
+
+						//update the JSON object created.
+						if(primaryGoals[id] != null){
+							//console.log("adding a subgoal to: " + JSON.stringify(primaryGoals[id]));
+							//update the JSON goal object
+							primaryGoals[id].subGoals[subId]['subGoalText'] = cell.innerHTML;
+							primaryGoals[id].subGoals[subId]['isChecked'] = false;
+							localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
+							//console.log("Updated subGoals at ID count: " + JSON.stringify(primaryGoals[id]));
+						}
+
+						clickedOutside = false;
+						//cell.removeEventListener("click", onclick);
+						document.removeEventListener('click', clickedOutsideFunction);
+						cell.addEventListener('click', onclick);//re-add the event listener so the user can edit again
+
+						//if there's nothing there in the cell, remove the goal from the document and from storage.
+						if(cell.innerHTML == ""){
+							console.log("nothing in cell");
+							document.getElementById("goalRow" + "|" + id).removeChild(subGoalRow);
+							delete primaryGoals[id].subGoals[subId];
+							localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
+							//TODO: add browser-level storage in here once we implement that. 
+						}
+						
+						event.preventDefault();
+						return false;
+					}
+
+			}//end of submitSubGoal()
+
+		// 		return false;
+		}//end of clickSubGoal()
+
+	
+			//return false;
+
+	subGoalRow.append(cell);
+	document.getElementById("goalRow" + "|" + id).append(subGoalRow);
+}
+      
 
 /**
  * Reset all CSS.
@@ -273,39 +672,9 @@ function addStickyNote(){
 
 
 
-			//Create a new p element. This is the goal statement.
-			var para = document.createElement("p"); 
-				para.style.margin = "10%";
-				para.style.marginTop="7%";
-				para.innerText = goal;
-			
-				document.getElementById("sticky").append(para);                    
-
-
-			//Create a new span element. This is the area to which the checkbox and the "Goal Accomplished" label are appended.
-			var checkSpan = document.createElement("span");
-				checkSpan.id="checkSpan";
-				checkSpan.style.position = "absolute";
-				checkSpan.style.display = "inline-block";
-				checkSpan.style.float = "left";
-				checkSpan.style.float = "left";
-			  	checkSpan.style.marginLeft = "10%";
-			  	checkSpan.style.marginBottom = "10%";
-				document.getElementById("sticky").append(checkSpan);
-
-
-			//Create a new span element. This is the div to which the label of the checkbox will be appended.
-			var labelSpan = document.createElement("span");
-				labelSpan.id="labelSpan";
-				labelSpan.style.display = "inline-block";
-			  	labelSpan.style.marginLeft = "20%";
-			  	labelSpan.style.marginBottom = "10%";
-
-				document.getElementById("sticky").append(labelSpan);
-			
 
 			//Create a new span element. This is the checkbox that removes the sticky note if clicked.\
-			var check = document.createElement("input");
+			/*var check = document.createElement("input");
 			  check.type = "checkbox";
 
 	    	  check.style.height = "15px";
@@ -328,21 +697,21 @@ function addStickyNote(){
 			  });
 			    
 			  document.getElementById("checkSpan").append(check);
-			  
+			  */
 
 			  //Create a new label element. This is the label of the checkbox.
-			  var newlabel = document.createElement("label");
+			 /* var newlabel = document.createElement("label");
 				  newlabel.style.display = "inline";
 				  newlabel.innerHTML = "Goal Accomplished!";
 				  newlabel.style.marginBottom = "10%";
 				  newlabel.color = "black";
-				  document.getElementById("labelSpan").append(newlabel);
+				  document.getElementById("labelSpan").append(newlabel);*/
 
 			  //document.getElementById('sticky').childNodes.addEventListener('mouseover', onHover);
 			  //document.getElementById('sticky').childNodes.addEventListener('mouseout', offHover);
 
 			  //Create a new button element. This is for exporting the csv file of data.
-			  var exportButton = document.createElement('button');
+			  /*var exportButton = document.createElement('button');
 				exportButton.innerHTML ="Export CSV Data";
 
 				exportButton.style.textAlign = "center"; 
@@ -358,7 +727,7 @@ function addStickyNote(){
 			 	document.getElementById("sticky").append(exportButton); 
 			 	exportButton.addEventListener ("click", function() {
 			          writeCSV();
-			     }); 
+			     }); */
 	  
 
 			//});//end of getGoal()
@@ -398,12 +767,16 @@ function newGoal(){
 		checkbox.addEventListener('change', function() {
 		    if(this.checked) {
 		    	var thisCell = document.getElementById("primaryCell"+"|"+id);
+		    	primaryGoals[id]['isChecked'] = true;
+		    	localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
 		    	thisCell.style.textDecoration="line-through";
 		    	thisCell.style.color="gray";
 		    	console.log("checked!");
 
 		    } else {
 		    	var thisCell = document.getElementById("primaryCell"+"|"+id);
+		    	primaryGoals[id]['isChecked'] = false;
+		    	localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
 		    	thisCell.style.textDecoration="none";
 		    	thisCell.style.color="black";
 		     	console.log("not checked!");
@@ -501,6 +874,7 @@ function newGoal(){
 						if(primaryGoals[id] != null){
 							//update the JSON goal object
 							primaryGoals[id].primaryGoal = cell.innerHTML;
+							localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
 						}else{
 							//create the JSON goal object and add it to the array
 							createJsonGoal(id, cell.innerHTML);
@@ -565,6 +939,7 @@ function newGoal(){
 
 	document.getElementById("goalDiv").append(goalRow);
 	count++;//to generate a unique ID for the next goal. 
+	localStorage.setItem("goalCount|", count);
 }
 
 /**
@@ -578,13 +953,52 @@ function createJsonGoal(entryIDCount, goal){
 	var jsonGoalObj = {
 		id: entryIDCount, 
 		primaryGoal: goal,
+		isChecked: false,
 		subGoals:{},//subGoals, with their own count
+					//Subgoal form is as follows -- 
+					//key = {subGoalText: "Example"
+							//isChecked: false
+							//}
 		numSubGoals: 0//initialized as 0, increase as subGoals increases
 	}
 
 	primaryGoals[entryIDCount] = jsonGoalObj;
+	localStorage.setItem("goal|" + entryIDCount, JSON.stringify(primaryGoals[entryIDCount]));
+	console.log("added to localStorage: " + localStorage.getItem("goal|" + entryIDCount));
 	return jsonGoalObj;
 }
+
+/**
+ * Creates a JSON object for representing a subgoal and adds it to primaryGoals{}.
+ * @param parentId - The id of the parent goal.
+ * @param desc - the goal description. E.g.: "Write the biomimetics essay."
+ * @return the JSON object created.
+ **/
+function createJsonSubGoal(parentId, desc){
+	var parentGoal = primaryGoals[parentId];
+	var jsonSubGoalObj = {
+		id: parentGoal.numSubGoals, 
+		subGoalText: desc,
+		isChecked: false
+	}
+
+	//add to primaryGoals[parentId]
+	parentGoal['numSubGoals'] = jsonSubGoalObj;
+	parentGoal['subGoals'][parentGoal.numSubGoals] = jsonSubGoalObj;
+	console.log("New subgoal added: " + parentGoal['subGoals'][parentGoal.numSubGoals]['subGoalText']);
+
+	//increment numSubGoals
+	parentGoal.numSubGoals = parentGoal.numSubGoals+1;
+
+	//update in localStorage. 
+	localStorage.setItem("goal|" + parentId, JSON.stringify(primaryGoals[parentId]));
+	console.log("added to localStorage: " + localStorage.getItem("goal|" + parentId));
+	return jsonSubGoalObj;
+}
+
+
+
+
 
 /**
  * Function for adding a new "sub" goal to the sticky note. 
@@ -596,6 +1010,7 @@ function newSubGoal(id){
 	var numSubGoals = primaryGoals[id].numSubGoals;
 	var subId = numSubGoals;
 	primaryGoals[id].numSubGoals++;//increment, because you are currently adding a goal.
+	localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
 
 
 
@@ -617,11 +1032,15 @@ function newSubGoal(id){
 		checkbox.addEventListener('change', function() {
 		    if(this.checked) {
 		    	var thisCell = document.getElementById("subGoal" + "|" + id + "|" + subId);
+		    	primaryGoals[id].subGoals[subId]['isChecked'] = true;
+		    	localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
 		    	thisCell.style.textDecoration="line-through";
 		    	thisCell.style.color="gray";
 
 		    } else {
 		    	var thisCell = document.getElementById("subGoal" + "|" + id + "|" + subId);
+		    	primaryGoals[id].subGoals[subId]['isChecked'] = false;
+		    	localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
 		    	thisCell.style.textDecoration="none";
 		    	thisCell.style.color="black";
 		    }
@@ -632,7 +1051,6 @@ function newSubGoal(id){
 
 
 	//append a text field
-	//within that row, have the shortcut field.
 	var cell = document.createElement("div");
 		cell.id = "subGoal" + "|" + id + "|" + subId;
 		cell.style.display="inline-block";
@@ -705,7 +1123,7 @@ function newSubGoal(id){
 						if(primaryGoals[id] != null){
 							//console.log("adding a subgoal to: " + JSON.stringify(primaryGoals[id]));
 							//update the JSON goal object
-							primaryGoals[id].subGoals[subId] = cell.innerHTML;
+							var newSubGoal = createJsonSubGoal(id, cell.innerHTML);
 							//console.log("Updated subGoals at ID count: " + JSON.stringify(primaryGoals[id]));
 						}
 
@@ -719,6 +1137,7 @@ function newSubGoal(id){
 							console.log("nothing in cell");
 							document.getElementById("goalRow" + "|" + id).removeChild(subGoalRow);
 							delete primaryGoals[id].subGoals[subId];
+							localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
 							//TODO: add browser-level storage in here once we implement that. 
 						}
 						
