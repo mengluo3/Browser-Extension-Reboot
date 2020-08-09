@@ -369,3 +369,12 @@ function renderSubGoal(id, subId){
 	subGoalRow.append(cell);
 	document.getElementById("goalRow" + "|" + id).append(subGoalRow);
 }
+
+/**
+* Function for removing sticky note temporarily when the 'x' button is clicked.
+**/
+function removeSticky() {
+  // Removes an element from the document.
+  var stickyNote = document.getElementById("sticky");
+  stickyNote.remove();
+}

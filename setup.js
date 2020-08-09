@@ -36,6 +36,12 @@ if(window.opener == null){
 }
 
 /**FUNCTION DEFINITIONS**/
+
+function fromPopup(){
+	alert("Popup communicating!");
+}
+
+
 /**
  * Reset all CSS.
  **/
