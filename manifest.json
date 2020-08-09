@@ -14,7 +14,10 @@
 			],
 
 			"js": [
-				"content.js"
+				"renderGoal.js",
+				"createNewGoals.js",
+				"loadFromStorage.js",
+				"setup.js"
 			],
 
 			"permissions": [
