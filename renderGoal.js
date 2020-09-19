@@ -122,6 +122,7 @@ function renderGoal(id){
 				function submitGoal(event, id){
 
 					if(clickedOutside == true){
+						console.log("Clicked outside. innerHTML = " + cell.innerHTML);
 
 						//update the JSON object created.
 						if(primaryGoals[id] != null){
@@ -139,10 +140,11 @@ function renderGoal(id){
 						cell.addEventListener('click', onclick);//re-add the event listener so the user can edit again
 						
 						//if there's nothing there in the cell, remove the goal from the document and from storage.
-						if(cell.innerHTML == ""){
-							//alert("deleting task and subtasks");
+						if(cell.innerHTML == "" || cell.innerHTML == "<br>"){
+							alert("deleting task and subtasks");
 							document.getElementById("goalDiv").removeChild(goalRow);
 							delete primaryGoals[id];
+							localStorage.removeItem("goal|" + id);
 							//TODO: add browser-level storage in here once we implement that. 
 						}
 
@@ -346,7 +348,7 @@ function renderSubGoal(id, subId){
 						cell.addEventListener('click', onclick);//re-add the event listener so the user can edit again
 
 						//if there's nothing there in the cell, remove the goal from the document and from storage.
-						if(cell.innerHTML == ""){
+						if(cell.innerHTML == "" || cell.innerHTML == "<br>"){
 							console.log("nothing in cell");
 							document.getElementById("goalRow" + "|" + id).removeChild(subGoalRow);
 							delete primaryGoals[id].subGoals[subId];

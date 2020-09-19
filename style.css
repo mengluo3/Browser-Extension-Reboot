@@ -1,0 +1,81 @@
+#sticky {
+	width: 250px;
+	min-height: 100px;
+	max-height: 600px;
+	background: white;
+	border-radius: 15px;
+	box-shadow: 1px 1px 2px 2px #D0D0D0;
+	color: black;
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	margin: 1%;
+	z-index: 10000000;
+	display: block;
+	font-family: Roboto, Calibri!important;
+	font-size: 10pt;
+	text-align: left;
+	border-color: #D0D0D0 !important;
+	border-style: solid !important;
+	border-width: 1px !important;
+}
+
+#min, #circ {
+	font-family: Roboto, Calibri;
+	text-align: center;
+	padding: 1%;
+	text-decoration: none;
+	border-radius: 50%;
+	border-width: 0px;
+	color: gray;
+	background: white;
+	position: absolute;
+	top: 20px;
+}
+
+#min {
+	right: 15%;
+}
+
+#circ {
+	right: 7%;
+}
+
+#addGoalButton {
+	font-family: Roboto, Calibri;
+	text-align: center;
+	text-decoration: none;
+	width: 20px;
+	height: 20px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: gray;
+	border-radius: 10%;
+	color: gray;
+	background: white;
+	position: absolute;
+	font-weight: 700;
+	position: absolute;
+	right:5%;
+	bottom: 10px;
+}
+
+#testHead {
+	margin: 10%;
+	margin-bottom: 5%;
+}
+
+#grayLine {
+	width: 90%;
+	height: 1px;
+	margin: auto;
+	background: #D0D0D0
+}
+
+#goalDiv {
+	margin: 10%;
+	margin-top: 5%;
+	margin-bottom: 50px;
+	max-height: 450px;
+	overflow: auto;
+}

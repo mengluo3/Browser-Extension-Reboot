@@ -12,7 +12,8 @@ var isOn;
 var winID;
 
 //for dragging
-var initX, initY, mousePressX, mousePressY, boxWidth = 250, boxHeight = 100;
+var initX, initY, mousePressX, mousePressY;
+// var boxWidth = 250, boxHeight = 100;
 
 //for storing goals 
 var primaryGoals={};//goals are stored with key-value pairs. 
@@ -56,6 +57,25 @@ function resetCSS(){
  * Function for dynamically adding the sticky note.
  */
 function addStickyNote(){ 
+	/*var ol = '<ul id="demo1" class="slippylist">';
+    // ol+='<li class="demo-no-reorder">Swipe,</li>';
+    ol+='<li class="demo-no-swipe">hold &amp; reorder <span class="instant">or instantly</span></li>';
+    ol+='<li>or either</li>';
+    ol+='<li class="demo-no-swipe">or none of them.</li>';
+    // ol+='<li>Can play nicely with:</li>';
+    // ol+='<li>interaction <input type="range"></li>';
+    // ol+='<li style="transform: scaleX(0.97) skewX(-10deg); -webkit-transform: scaleX(0.97) skewX(-10deg)">inline CSS transforms</li>';
+    // ol+='<li class="skewed">stylesheet transforms</li>';
+    // ol+='<li class="demo-allow-select"><span class="demo-no-reorder">and selectable text, even though animating elements with selected text is a bit weird.</span></li>';
+    // ol+='<li>iOS Safari</li>';
+    // ol+='<li>Mobile Chrome</li>';
+    // ol+='<li>Android Firefox</li>';
+    // ol+='<li>Opera Presto and Blink</li>';
+    // ol+='<li>No dependencies</li>';
+	ol+='</ul>';
+	var newDiv = document.createElement("div");
+		newDiv.innerHTML = ol;
+		//newDiv.id = "demo1";*/
 	
 	//1. Check if the extension is on or not
 	//checkIfOn(function(){
@@ -67,68 +87,72 @@ function addStickyNote(){
 			//Create a new div element that is a white rectangle. This is the background of the sticky note.
 		  	var box = document.createElement("div");
 			  	box.id="sticky";
-				box.style.width = boxWidth + "px";
-				box.style.minHeight = boxHeight + "px !important";
-				box.style.maxHeight = "600px";
-				box.style.background = "white";
-				box.style.borderRadius = "15px";
-				box.style.boxShadow = "1px 1px 2px 2px #D0D0D0";
-				box.style.color = "black";
-				box.style.position = "fixed";
-				box.style.right = "0";
-				box.style.bottom = "0";
-				box.style.margin = "1%";
-				box.style.zIndex="1000000000";
-				box.style.display = "block";
-				box.style.fontFamily = "Roboto, Calibri!important";
-				box.style.fontSize = "10pt";
-				box.style.textAlign = "left";
-				box.style.borderColor  = "#D0D0D0 !important";
-				box.style.borderStyle  = "solid !important";
-				box.style.borderWidth  = "1px !important";
 
 				//add new element to the clear background
 				document.body.append(box);
+
+/*				box.append(newDiv);
+
+				function setupSlip(list) {
+			        list.addEventListener('slip:beforereorder', function(e){
+			        	console.log("slip:beforereorder");
+			            if (e.target.classList.contains('demo-no-reorder')) {
+			                e.preventDefault();
+			            }
+			        }, false);
+
+			        // list.addEventListener('slip:beforeswipe', function(e){
+			        //     if (e.target.nodeName == 'INPUT' || e.target.classList.contains('demo-no-swipe')) {
+			        //         e.preventDefault();
+			        //     }
+			        // }, false);
+
+			        // list.addEventListener('slip:beforewait', function(e){
+			        //     if (e.target.classList.contains('instant')) e.preventDefault();
+			        // }, false);
+
+			        // list.addEventListener('slip:afterswipe', function(e){
+			        //     e.target.parentNode.appendChild(e.target);
+			        // }, false);
+
+			        list.addEventListener('slip:reorder', function(e){
+			        	console.log("slip:reorder");
+			            e.target.parentNode.insertBefore(e.target, e.detail.insertBefore);
+			            return false;
+			        }, false);
+			        return new Slip(list);
+			    }
+			 	var list = document.querySelector('ul#demo1');
+				new Slip(list);
+				setupSlip(list);
+				*/
+
 
 				//BELOW two lines: unused code for making the sticky note disappear upon hover.
 				//document.getElementById('sticky').addEventListener('mouseover', onHover);
 				//document.getElementById('sticky').addEventListener('mouseleave', offHover);
 
 				//add event listener to the sticky note.	
-				box.addEventListener('mousedown', function(event) {
+				// box.addEventListener('mousedown', function(event) {
 
-					initX = this.offsetLeft;
-					initY = this.offsetTop;
-					mousePressX = event.clientX;
-					mousePressY = event.clientY;
+				// 	initX = this.offsetLeft;
+				// 	initY = this.offsetTop;
+				// 	mousePressX = event.clientX;
+				// 	mousePressY = event.clientY;
 
-					this.addEventListener('mousemove', repositionStickyNote, false);
+				// 	this.addEventListener('mousemove', repositionStickyNote, false);
 
-					window.addEventListener('mouseup', function() {
-					  box.removeEventListener('mousemove', repositionStickyNote, false);
-					}, false);
+				// 	window.addEventListener('mouseup', function() {
+				// 	  box.removeEventListener('mousemove', repositionStickyNote, false);
+				// 	}, false);
 
-				}, false);
+				// }, false);
 	
 			
 			//Create a new button element. This is the '-' minimize button on the sticky note.
 			var min = document.createElement('button');
 				min.innerHTML ="—";
-
-				min.style.fontFamily="Roboto, Calibri";
-				min.style.textAlign = "center"; 
-				min.style.padding = "1%"; 
-				min.style.textDecoration = "none";
 				min.id="min";
-				//circ.style.width = "20px";
-				//circ.style.height = "20px";
-			 	min.style.borderRadius = "50%";
-			 	min.style.borderWidth = "0px";
-				min.style.color = "gray";
-				min.style.background = "white";
-				min.style.position = "absolute";
-				min.style.right = "15%";
-			    min.style.top = "20px";
 		  
 			 	document.getElementById("sticky").append(min); 
 			 	min.addEventListener ("click", function() {
@@ -139,20 +163,7 @@ function addStickyNote(){
 			//Create a new button element. This is the 'x' exit button on the sticky note.
 			var circ = document.createElement('button');
 				circ.innerHTML ="x";
-
-				circ.style.fontFamily="Roboto, Calibri";
-				circ.style.textAlign = "center"; 
-				circ.style.textDecoration = "none";
-				circ.id="min";
-				//circ.style.width = "20px";
-				//circ.style.height = "20px";
-			 	circ.style.borderRadius = "50%";
-			 	circ.style.borderWidth = "0px";
-				circ.style.color = "gray";
-				circ.style.background = "white";
-				circ.style.position = "absolute";
-				circ.style.right = "5%";
-			    circ.style.top = "20px";
+				circ.id="circ";
 		  
 			 	document.getElementById("sticky").append(circ); 
 			 	circ.addEventListener ("click", function() {
@@ -162,23 +173,7 @@ function addStickyNote(){
 			 //Create a new button element. This is the button for adding a new goal.
 			 var plus = document.createElement('div');
 			 	plus.innerHTML ="+";
-
-			 	plus.style.fontFamily="Roboto, Calibri";
-			 	plus.style.textAlign = "center"; 
-			 	plus.style.textDecoration = "none";
 			 	plus.id="addGoalButton";
-			 	plus.style.width = "20px";
-			 	plus.style.height = "20px";
-			 	plus.style.borderWidth = "1px";
-			 	plus.style.borderStyle = "solid";
-			 	plus.style.borderColor="gray";
-			 	plus.style.borderRadius="10%";
-			 	plus.style.background = "white";
-			 	plus.style.color = "gray";
-			 	plus.style.fontWeight="700";
-			 	plus.style.position = "absolute";
-			 	plus.style.right = "5%";
-			    plus.style.bottom = "10px";
 
 			  
 			  	document.getElementById("sticky").append(plus); 
@@ -221,33 +216,19 @@ function addStickyNote(){
 */
 			
 			//Create a new p element. This is the 'GOAL" heading at the top of the sticky note.
-			var heading = document.createElement("p");  
-				heading.style.fontFamily = "Roboto, Calibri!important";                     
+			var heading = document.createElement("p");                       
 				heading.id = "testHead";
-				heading.style.margin="10%";
-				heading.style.marginBottom="5%";
-				//heading.innerText = "🌱 TASKS"; 
-				heading.innerText = "✨ TASKS"; 
-				//cell.innerHTML="Write your new task here!✨";           
+				heading.innerText = "✨ TASKS";            
 				document.getElementById("sticky").append(heading);                     
 
 
 			//Create a new div element. This is the horizontal line below "GOAL" on the sticky note.
-			var line = document.createElement("div");    
-				line.style.width = "90%";
-				line.style.height = "1px";
-				line.style.margin = "auto";
-				line.style.background = "#D0D0D0";
+			var line = document.createElement("div");  
+				line.id = "grayLine";  
 				document.getElementById("sticky").append(line);                      
 
 			//Create a new div element. This is the area for appending goal statements. 
-			var goalDiv = document.createElement("div"); 
-				goalDiv.style.margin = "10%";
-				goalDiv.style.marginTop="5%";
-			    goalDiv.style.marginBottom = "50px";
-			    goalDiv.style.maxHeight="450px";
-			    goalDiv.style.fontFamily = "Roboto, Calibri!important";
-			    goalDiv.style.overflow="auto";                     
+			var goalDiv = document.createElement("div");                 
 				goalDiv.id="goalDiv";
 
 				document.getElementById("sticky").append(goalDiv);   
