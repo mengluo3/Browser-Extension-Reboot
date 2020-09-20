@@ -13,6 +13,10 @@
 				"<all_urls>"
 			],
 
+			"css": [
+				"style.css"
+			],
+
 			"js": [
 				"renderGoal.js",
 				"createNewGoals.js",
