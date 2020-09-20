@@ -1,3 +1,4 @@
+/** FOR THE STICKY NOTE BASE **/
 #sticky {
 	width: 250px;
 	min-height: 100px;
@@ -78,4 +79,69 @@
 	margin-bottom: 50px;
 	max-height: 450px;
 	overflow: auto;
+}
+
+
+/** FOR THE GOAL CELLS **/
+.goalCell {
+	display: inline-block; 
+	position: absolute;
+	left: 5px;
+	background: white;
+	position: relative;
+	width: 80%;
+	min-height: 20px;
+	margin-bottom: 5%;
+	border-width: 0.5px;
+	color: gray;
+	content-editable: true;
+	outline: none;
+	text-decoration: none;
+}
+
+.plusSub {
+	text-align: center;
+	text-decoration: none;
+	width: 15px;
+	height: 15px;
+	border-width: 1px;
+	border-style: solid;
+	border-color: gray;
+	border-radius: 10%;
+	background: white;
+	color: gray;
+	font-weight: 700;
+	font-size: 0.8em;
+	display: inline-block;
+	position: absolute;
+	right: 0;
+	margin-top: 5px;
+}
+
+.goalCheckBox {
+	display: inline-block;
+	z-index: 300!important;
+	vertical-align: top;
+	margin: 0!important;
+}
+
+.subGoalCheckBox {
+	display: inline-block;
+	position: absolute;
+	vertical-align: top;
+	left: 23px;
+}
+
+.subGoalCell {
+	display: inline-block; 
+	position: absolute;
+	margin-left: 23%;
+	background: white;
+	position: relative;
+	width: 77%;
+	min-height: 20px;
+	margin-bottom: 5%;
+	border-width: 0.5px;
+	color: gray;
+	text-decoration: none;
 }

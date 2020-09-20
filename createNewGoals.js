@@ -69,14 +69,9 @@ function newGoal(){
 
 	var checkbox = document.createElement("input");
 		checkbox.id="checkbox"+"|"+id;
+		checkbox.class = "goalCheckBox";
 		checkbox.type = "checkbox";
-		//checkbox.id = tagKey + "Check"; //id is the tag key and Check
-		checkbox.style.display="inline-block";
-		checkbox.style.zIndex="300!important";
-		//checkbox.style.position="absolute";
-		//checkbox.style.top="0";
-		checkbox.style.verticalAlign="top";
-		checkbox.style.margin="0!important";
+		
 		checkbox.addEventListener('change', function() {
 		    if(this.checked) {
 		    	var thisCell = document.getElementById("primaryCell"+"|"+id);
@@ -101,27 +96,12 @@ function newGoal(){
 	//append a text field
 	//within that row, have the shortcut field.
 	var cell = document.createElement("div");
+		cell.class = "goalCell";
 		cell.id="primaryCell"+"|"+id;
-		cell.style.display="inline-block";
-		cell.style.position="absolute!important";
-		cell.style.left="5px";
-		cell.style.background="white";
-		cell.style.position="relative";//alows to stack atop one another. 
-		//cell.style.bottom="50%";
-		cell.style.width = "80%";
-		cell.style.minHeight = "20px";
-		//cell.style.paddingRight = "5%";
-		cell.style.marginBottom = "5%";
-
-		//cell.style.borderBottom = "solid";
-		cell.style.borderWidth = "0.5px";
-		cell.style.fontFamily = "Roboto, Calibri!important"; 
-		//cell.innerHTML="Write your new task here!✨";
 		cell.innerHTML="Write your new task here!";
-		cell.style.color = "gray";
 		cell.contentEditable="true";
 		cell.outline="none";
-		cell.style.textDecoration = "none";
+
 
 			function onclick(e){
 				var thisID = e.target.id.split("|")[1];
@@ -222,25 +202,8 @@ function newGoal(){
 	//Create a new button element. This is the button for adding a new goal.
     var plusSub = document.createElement('div');
     	plusSub.innerHTML ="+";
-
-    	plusSub.style.fontFamily="Roboto, Calibri";
-    	plusSub.style.textAlign = "center"; 
-    	plusSub.style.textDecoration = "none";
     	plusSub.id="plusSub" + "|" + id;
-    	plusSub.style.width = "15px";
-    	plusSub.style.height = "15px";
-    	plusSub.style.borderWidth = "1px";
-    	plusSub.style.borderStyle = "solid";
-    	plusSub.style.borderColor="gray";
-    	plusSub.style.borderRadius="10%";
-    	plusSub.style.background = "white";
-    	plusSub.style.color = "gray";
-    	plusSub.style.fontWeight="700";
-    	plusSub.style.fontSize="0.8em";
-    	plusSub.style.display = "inline-block";
-    	plusSub.style.position = "absolute";
-    	plusSub.style.right = "0";
-    	plusSub.style.marginTop = "5px";
+    	plusSub.class = "plusSub";
 
      
      	goalRow.append(plusSub); 
@@ -279,14 +242,8 @@ function newSubGoal(id){
 
 	var checkbox = document.createElement("input");
 		checkbox.type = "checkbox";
-		//checkbox.id = tagKey + "Check"; //id is the tag key and Check
-		checkbox.style.display="inline-block";
-		//checkbox.style.position="absolute!important";
-		checkbox.style.position="absolute";
-		//checkbox.style.top="0";
-		checkbox.style.verticalAlign="top";
-		//checkbox.style.margin="0";
-		checkbox.style.left="23px";
+		checkbox.class = "subGoalCheckBox"
+		
 		checkbox.addEventListener('change', function() {
 		    if(this.checked) {
 		    	var thisCell = document.getElementById("subGoal" + "|" + id + "|" + subId);
@@ -311,29 +268,11 @@ function newSubGoal(id){
 	//append a text field
 	var cell = document.createElement("div");
 		cell.id = "subGoal" + "|" + id + "|" + subId;
-		cell.style.display="inline-block";
-		cell.style.position="absolute!important";
-		//cell.style.zIndex="-50";
-		cell.style.marginLeft="23%";
-		cell.style.background="white";
-		//cell.style.background="blue";
-		cell.style.position="relative";//alows to stack atop one another. 
-		//cell.style.bottom="50%";
-		cell.style.width = "77%";
-		cell.style.minHeight = "20px";
-		cell.style.marginBottom = "5%";
-		//cell.style.marginLeft="20%";
-		//cell.style.borderBottom = "solid";
-		cell.style.borderWidth = "0.5px";
-		cell.style.fontFamily = "Roboto, Calibri!important"; 
-		//cell.innerHTML="Write your new task here!✨";
+		cell.class = "subGoalCell"
 		cell.innerHTML="Write your new task here!";
-		cell.style.color = "gray";
 		cell.contentEditable="true";
 		cell.outline="none";
-		cell.style.textDecoration = "none";
-
-
+		
 
 		cell.addEventListener('click', onclick);
 
