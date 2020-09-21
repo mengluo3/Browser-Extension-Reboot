@@ -106,7 +106,7 @@ function addStickyNote(){
 			//Create a new button element. This is the 'x' exit button on the sticky note.
 			var circ = document.createElement('button');
 				circ.innerHTML ="x";
-				circ.id="min";
+				circ.id="circ";
 		  
 			 	document.getElementById("sticky").append(circ); 
 			 	circ.addEventListener ("click", function() {
