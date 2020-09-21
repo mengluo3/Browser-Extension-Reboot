@@ -35,11 +35,11 @@
 }
 
 #min {
-	right: 15%;
+	right: 15% !important;
 }
 
 #circ {
-	right: 7%;
+	right: 12px !important;
 }
 
 #addGoalButton {

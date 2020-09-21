@@ -36,7 +36,7 @@ function renderGoal(id){
 		    	localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
 		    	thisCell.style.textDecoration="line-through";
 		    	thisCell.style.color="gray";
-		    	console.log("checked!");
+		    	console.log(" renderGoal.js checked!");
 
 		    } else {
 		    	var thisCell = document.getElementById("primaryCell"+"|"+id);
@@ -60,20 +60,9 @@ function renderGoal(id){
 		cell.style.left="5px";
 		cell.style.background="white";
 		cell.style.position="relative";//alows to stack atop one another. 
-		//cell.style.bottom="50%";
 		cell.style.width = "80%";
 		cell.style.minHeight = "20px";
-		//cell.style.paddingRight = "5%";
 		cell.style.marginBottom = "5%";
-
-
-		//if loading from storage, the goal is indicated as checked, then 
-		if(goalJSON.isChecked == "true" || goalJSON.isChecked){
-			checkbox.checked = true;
-	    	cell.style.textDecoration="line-through";
-	    	cell.style.color="gray";
-		}
-
 		//cell.style.borderBottom = "solid";
 		cell.style.borderWidth = "0.5px";
 		cell.style.fontFamily = "Roboto, Calibri!important"; 
@@ -83,79 +72,89 @@ function renderGoal(id){
 		cell.outline="none";
 		cell.style.textDecoration = "none";
 
-			function onclick(e){
-				var thisID = e.target.id.split("|")[1];
-				cell.style.color = "black";
-				clickPrimaryGoal(e, thisID);
+
+
+		//if loading from storage, the goal is indicated as checked, then 
+		if(goalJSON.isChecked == "true" || goalJSON.isChecked){
+			console.log("isChecked: " + JSON.stringify(goalJSON) + ", cell id: " + cell.id);
+			checkbox.checked = true;
+	    	cell.style.textDecoration="line-through";
+	    	cell.style.color="gray";
+		}
+
+		function onclick(e){
+			var thisID = e.target.id.split("|")[1];
+			cell.style.color = "black";
+			clickPrimaryGoal(e, thisID);
+		}
+
+		cell.addEventListener('click', onclick);
+
+		/**
+		 * Function called when a cell is being edited.
+		 * @param event - the click mouseEvent
+		 * @param id - the id of the cell being edited.
+		 **/
+		function clickPrimaryGoal(e, id){
+			cell.removeEventListener('click', onclick);
+	
+			var clickedOutside = false;//if the user clicked elsewhere on the page
+			document.addEventListener('click', clickedOutsideFunction);
+
+			function clickedOutsideFunction(e){
+				let clickedElement = e.target; // clicked element
+				if(e.target != cell){
+					clickedOutside = true;
+					submitGoal(e, id);
+				}
 			}
 
-			cell.addEventListener('click', onclick);
+			//if the user hits enter and releases, then update the tags object and remove the keyup listener. 
+			//cell.addEventListener("keyup", submitGoal, false);
 
 			/**
-			 * Function called when a cell is being edited.
-			 * @param event - the click mouseEvent
+			 * Function called when user clicks away or hits center from the cell, indicating that they're
+			 * done editing the goal.
+			 * @param event - the mouse Event
 			 * @param id - the id of the cell being edited.
 			 **/
-			function clickPrimaryGoal(e, id){
-				cell.removeEventListener('click', onclick);
-		
-				var clickedOutside = false;//if the user clicked elsewhere on the page
-				document.addEventListener('click', clickedOutsideFunction);
+			function submitGoal(event, id){
 
-				function clickedOutsideFunction(e){
-					let clickedElement = e.target; // clicked element
-					if(e.target != cell){
-						clickedOutside = true;
-						submitGoal(e, id);
+				if(clickedOutside == true){
+
+					//update the JSON object created.
+					if(primaryGoals[id] != null){
+						//update the JSON goal object
+						primaryGoals[id].primaryGoal = cell.innerHTML;
+						localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
+						console.log("localStorage stored: " + localStorage.getItem("goal|" + id));
+					}else{
+						//create the JSON goal object and add it to the array
+						createJsonGoal(id, cell.innerHTML);
 					}
+
+					clickedOutside = false;
+					document.removeEventListener('click', clickedOutsideFunction);
+					cell.addEventListener('click', onclick);//re-add the event listener so the user can edit again
+					
+					//if there's nothing there in the cell, remove the goal from the document and from storage.
+					if(cell.innerHTML == "" || cell.innerHTML == "<br>"){
+						//alert("deleting task and subtasks");
+						document.getElementById("goalDiv").removeChild(goalRow);
+						delete primaryGoals[id];
+						localStorage.removeItem("goal|" + id);
+						//TODO: add browser-level storage in here once we implement that. 
+					}
+
+					event.preventDefault();
+					return false;
 				}
 
-				//if the user hits enter and releases, then update the tags object and remove the keyup listener. 
-				//cell.addEventListener("keyup", submitGoal, false);
 
-				/**
-				 * Function called when user clicks away or hits center from the cell, indicating that they're
-				 * done editing the goal.
-				 * @param event - the mouse Event
-				 * @param id - the id of the cell being edited.
-				 **/
-				function submitGoal(event, id){
+			}//end of keyup()
 
-					if(clickedOutside == true){
-
-						//update the JSON object created.
-						if(primaryGoals[id] != null){
-							//update the JSON goal object
-							primaryGoals[id].primaryGoal = cell.innerHTML;
-							localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
-							console.log("localStorage stored: " + localStorage.getItem("goal|" + id));
-						}else{
-							//create the JSON goal object and add it to the array
-							createJsonGoal(id, cell.innerHTML);
-						}
-
-						clickedOutside = false;
-						document.removeEventListener('click', clickedOutsideFunction);
-						cell.addEventListener('click', onclick);//re-add the event listener so the user can edit again
-						
-						//if there's nothing there in the cell, remove the goal from the document and from storage.
-						if(cell.innerHTML == "" || cell.innerHTML == "<br>"){
-							//alert("deleting task and subtasks");
-							document.getElementById("goalDiv").removeChild(goalRow);
-							delete primaryGoals[id];
-							localStorage.removeItem("goal|" + id);
-							//TODO: add browser-level storage in here once we implement that. 
-						}
-
-						event.preventDefault();
-						return false;
-					}
-
-
-				}//end of keyup()
-
-				return false;
-			}//end of click1()
+			return false;
+		}//end of click1()
 
 	goalRow.append(cell);
 
