@@ -1,7 +1,4 @@
-
-
-
- /**
+/**
  * Function for adding a pre-existing goal onto sticky note.
  * @param id - the primaryGoal's id in primaryGoals{}.
  **/
@@ -110,7 +107,33 @@ function renderGoal(id){
 			}
 
 			//if the user hits enter and releases, then update the tags object and remove the keyup listener. 
-			//cell.addEventListener("keyup", submitGoal, false);
+			cell.addEventListener("keydown", keydown);
+
+			function keydown (e) {
+				if(e.code == 'Enter') {
+					clickedOutside = true;
+					submitGoal(e, id);
+				}
+
+				if(e.code == "Tab") {
+					console.log("Tabtabtab");
+					clickedOutside = true;
+					submitGoal(e, id);
+					//Start creating a new SUBGOAL for this primary Goal
+					newSubGoal(id);
+					cell.removeEventListener("keydown", keydown);
+				}
+
+				if(e.code == "Delete") {
+					console.log("DELETE");
+					document.getElementById("goalDiv").removeChild(goalRow);
+					delete primaryGoals[id];
+					localStorage.removeItem("goal|" + id);
+					cell.removeEventListener("keydown", keydown);
+				}
+			}
+
+
 
 			/**
 			 * Function called when user clicks away or hits center from the cell, indicating that they're
@@ -136,7 +159,8 @@ function renderGoal(id){
 					clickedOutside = false;
 					document.removeEventListener('click', clickedOutsideFunction);
 					cell.addEventListener('click', onclick);//re-add the event listener so the user can edit again
-					
+					cell.removeEventListener("keydown", keydown);//will get re-added later.
+
 					//if there's nothing there in the cell, remove the goal from the document and from storage.
 					if(cell.innerHTML == "" || cell.innerHTML == "<br>"){
 						//alert("deleting task and subtasks");
@@ -146,12 +170,16 @@ function renderGoal(id){
 						//TODO: add browser-level storage in here once we implement that. 
 					}
 
+					//solidify
+					cell.contentEditable = false;
+					cell.contentEditable = true;
+
 					event.preventDefault();
 					return false;
 				}
 
 
-			}//end of keyup()
+			}//end of submitGoal()
 
 			return false;
 		}//end of click1()
@@ -317,6 +345,33 @@ function renderSubGoal(id, subId){
 		 	}
 		 	document.addEventListener('click', clickedOutsideFunction);
 
+		 	//if the user hits enter and releases, then update the tags object and remove the keyup listener. 
+			cell.addEventListener("keydown", keydown);
+
+			function keydown (e) {
+				if(e.code == 'Enter') {
+					clickedOutside = true;
+					editSubGoal(e, id, subId);
+				}
+
+				/*if(e.code == "Tab") {
+					console.log("Tabtabtab");
+					clickedOutside = true;
+					submitGoal(e, id);
+					//Start creating a new SUBGOAL for this primary Goal
+					newSubGoal(id);
+				}*/
+
+				if(e.code == "Delete") {
+					console.log("DELETE");
+					document.getElementById("goalRow" + "|" + id).removeChild(subGoalRow);
+					delete primaryGoals[id].subGoals[subId];
+					localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
+					cell.removeEventListener("keydown", keydown);
+				}
+			}
+
+
 
 			/*
 			 * Function called when user clicks away or hits center from the cell, indicating that they're
@@ -332,7 +387,7 @@ function renderSubGoal(id, subId){
 
 						//update the JSON object created.
 						if(primaryGoals[id] != null){
-							//console.log("adding a subgoal to: " + JSON.stringify(primaryGoals[id]));
+							console.log("edditing a subgoal to: " + JSON.stringify(primaryGoals[id]));
 							//update the JSON goal object
 							primaryGoals[id].subGoals[subId]['subGoalText'] = cell.innerHTML;
 							primaryGoals[id].subGoals[subId]['isChecked'] = false;
@@ -353,6 +408,10 @@ function renderSubGoal(id, subId){
 							localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
 							//TODO: add browser-level storage in here once we implement that. 
 						}
+
+						//Solidify
+						cell.contentEditable = false;
+						cell.contentEditable = true;
 						
 						event.preventDefault();
 						return false;

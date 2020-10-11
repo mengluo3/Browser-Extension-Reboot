@@ -151,6 +151,34 @@ function newGoal(){
 				}
 
 				//if the user hits enter and releases, then update the tags object and remove the keyup listener. 
+				cell.addEventListener("keydown", keydown);
+
+				function keydown (e) {
+					if(e.code == 'Enter') {
+						clickedOutside = true;
+						submitGoal(e, id);
+						cell.removeEventListener("keydown", keydown);
+					}
+
+					if(e.code == "Tab") {
+						console.log("Tabtabtab");
+						clickedOutside = true;
+						submitGoal(e, id);
+						//Start creating a new SUBGOAL for this primary Goal
+						newSubGoal(id);
+						cell.removeEventListener("keydown", keydown);
+					}
+
+					if(e.code == "Delete") {
+						console.log("DELETE");
+						document.getElementById("goalDiv").removeChild(goalRow);
+						delete primaryGoals[id];
+						localStorage.removeItem("goal|" + id);
+						cell.removeEventListener("keydown", keydown);
+					}
+				}
+
+				//if the user hits enter and releases, then update the tags object and remove the keyup listener. 
 				//cell.addEventListener("keyup", submitGoal, false);
 
 				/**
@@ -205,6 +233,10 @@ function newGoal(){
 							localStorage.removeItem("goal|" + id);
 							//TODO: add browser-level storage in here once we implement that. 
 						}
+
+						//Solidify
+						cell.contentEditable = false;
+						cell.contentEditable = true;
 
 						event.preventDefault();
 						return false;
@@ -363,6 +395,32 @@ function newSubGoal(id){
 		 	}
 		 	document.addEventListener('click', clickedOutsideFunction);
 
+		 	//if the user hits enter and releases, then update the tags object and remove the keyup listener. 
+			cell.addEventListener("keydown", keydown);
+
+			function keydown (e) {
+				if(e.code == 'Enter') {
+					clickedOutside = true;
+					editSubGoal(e, id, subId);
+				}
+
+				/*if(e.code == "Tab") {
+					console.log("Tabtabtab");
+					clickedOutside = true;
+					submitGoal(e, id);
+					//Start creating a new SUBGOAL for this primary Goal
+					newSubGoal(id);
+				}*/
+
+				if(e.code == "Delete") {
+					console.log("DELETE");
+					document.getElementById("goalRow" + "|" + id).removeChild(subGoalRow);
+					delete primaryGoals[id].subGoals[subId];
+					localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
+					cell.removeEventListener("keydown", keydown);
+				}
+			}
+
 
 			/*
 			 * Function called when user clicks away or hits center from the cell, indicating that they're
@@ -397,6 +455,10 @@ function newSubGoal(id){
 							localStorage.setItem("goal|" + id, JSON.stringify(primaryGoals[id]));
 							//TODO: add browser-level storage in here once we implement that. 
 						}
+
+						//Solidify
+						cell.contentEditable = false;
+						cell.contentEditable = true;
 						
 						event.preventDefault();
 						return false;
